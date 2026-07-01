@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trivia Interactiva - Canva y Presentaciones 2026</title>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0F0C20 0%, #15102A 50%, #06040A 100%);
+            --panel-bg: rgba(26, 21, 44, 0.85);
+            --primary-neon: #9D4EDD;
+            --secondary-neon: #00F5FF;
+            --text-light: #F3F0F7;
+            --text-muted: #A5A1B8;
+            --error-neon: #FF3366;
+            --success-neon: #00FF66;
+            --btn-option-bg: rgba(255, 255, 255, 0.05);
+            --btn-option-border: rgba(157, 78, 221, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            /* Evita selección de texto */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            padding-bottom: 80px;
+        }
+
+        /* Ajuste para que en pantalla completa se vea estilizado y centrado */
+        body:-webkit-full-screen { background: var(--bg-gradient); display: flex; justify-content: center; align-items: center; }
+        body:-moz-full-screen { background: var(--bg-gradient); display: flex; justify-content: center; align-items: center; }
+        body:fullscreen { background: var(--bg-gradient); display: flex; justify-content: center; align-items: center; }
+
+        .game-container {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(255,255,255,0.1);
+            width: 100%;
+            max-width: 650px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid rgba(157, 78, 221, 0.2);
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .illustration-box {
+            margin: 10px auto 20px auto;
+            width: 120px;
+            height: 120px;
+        }
+
+        h2 {
+            color: var(--secondary-neon);
+            text-shadow: 0 0 15px rgba(0, 245, 255, 0.3);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            line-height: 1.3;
+        }
+
+        .form-group {
+            margin: 20px 0;
+        }
+
+        input[type="text"] {
+            width: 85%;
+            padding: 14px;
+            margin: 15px 0;
+            background: rgba(0,0,0,0.3);
+            border: 2px solid var(--btn-option-border);
+            border-radius: 10px;
+            font-size: 1.1rem;
+            text-align: center;
+            color: #FFF;
+            outline: none;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--secondary-neon);
+            box-shadow: 0 0 15px rgba(0, 245, 255, 0.2);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary-neon) 0%, #7B2CBF 100%);
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(157, 78, 221, 0.4);
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(157, 78, 221, 0.6);
+            filter: brightness(1.1);
+        }
+
+        .btn:disabled {
+            background: #3A354A;
+            color: #726E83;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .btn-danger { background: linear-gradient(135deg, var(--error-neon) 0%, #C71542 100%); box-shadow: 0 4px 15px rgba(255, 51, 102, 0.3); }
+        .btn-secondary { background: #4A455A; margin-top: 15px; box-shadow: none; color: #EEE;}
+
+        .error-msg {
+            color: var(--error-neon);
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            height: 20px;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--text-muted);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 12px;
+            font-size: 0.9rem;
+        }
+
+        .image-container {
+            width: 100%;
+            height: 210px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .q-svg-graphic {
+            height: 90px;
+            margin-bottom: 10px;
+        }
+
+        .img-placeholder {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            line-height: 1.4;
+            text-align: center;
+        }
+
+        .img-placeholder u {
+            color: var(--secondary-neon);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--secondary-neon);
+        }
+
+        #question-text {
+            margin-bottom: 22px;
+            font-size: 1.15rem;
+            line-height: 1.4;
+            color: #FFF;
+        }
+
+        #answers-container {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .option-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            margin: 10px 0;
+            background: var(--btn-option-bg);
+            border: 1px solid var(--btn-option-border);
+            border-radius: 10px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            color: var(--text-light);
+        }
+
+        .option-btn:hover {
+            background: rgba(157, 78, 221, 0.15);
+            border-color: var(--primary-neon);
+        }
+
+        .option-btn.selected {
+            background: rgba(157, 78, 221, 0.35);
+            border-color: var(--secondary-neon);
+            box-shadow: 0 0 10px rgba(0, 245, 255, 0.2);
+            font-weight: bold;
+        }
+
+        .combo-container {
+            padding: 12px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .combo-container label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--btn-option-border);
+            background: #1A152C;
+            color: #FFF;
+            outline: none;
+        }
+
+        .matching-instruction {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .matching-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+            background: rgba(255,255,255,0.02);
+            padding: 12px;
+            border-radius: 10px;
+            border-left: 4px solid var(--secondary-neon);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            border-right: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .matching-concept {
+            font-weight: bold;
+            font-size: 0.95rem;
+            color: var(--secondary-neon);
+        }
+
+        .debug-report {
+            background: #1F1A3A;
+            border: 1px dashed var(--secondary-neon);
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 10px;
+            text-align: left;
+            font-size: 0.9rem;
+            max-height: 200px;
+            overflow-y: auto;
+            color: #FFF;
+        }
+
+        .cheat-title {
+            color: var(--error-neon) !important;
+            text-shadow: 0 0 15px rgba(255, 51, 102, 0.4) !important;
+        }
+
+        .fixed-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #0B0816;
+            color: var(--text-muted);
+            text-align: center;
+            padding: 14px;
+            font-size: 0.8rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <main class="game-container">
+        <section id="screen-login" class="screen active">
+            <div class="illustration-box">
+                <svg viewBox="0 0 100 100" width="100%" height="100%">
+                    <rect x="10" y="20" width="80" height="55" rx="8" fill="#1A152C" stroke="#9D4EDD" stroke-width="2"/>
+                    <rect x="18" y="27" width="64" height="36" rx="4" fill="#0B0816"/>
+                    <circle cx="32" cy="45" r="10" fill="#00F5FF" opacity="0.15"/>
+                    <circle cx="32" cy="45" r="6" fill="#00F5FF" opacity="0.7"/>
+                    <path d="M52 35 h20 M52 45 h15 M52 55 h25" stroke="#9D4EDD" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M 40,82 L 60,82 L 65,92 L 35,92 Z" fill="#3A354A" />
+                </svg>
+            </div>
+            <h2>Evaluación Digital:<br>Canva & Presentaciones</h2>
+            <div class="form-group">
+                <label for="student-code" style="color: var(--text-muted); font-size: 0.95rem;">Ingresá tu código asignado para iniciar la sincronización:</label><br>
+                <input type="text" id="student-code" placeholder="Ej: AL01" autocomplete="off">
+                <p id="login-error" class="error-msg"></p>
+                <button id="btn-start" class="btn">Autenticar e Iniciar</button>
+            </div>
+        </section>
+
+        <section id="screen-game" class="screen">
+            <div class="game-header">
+                <span id="question-number">Pregunta 1 de 25</span>
+            </div>
+
+            <div class="image-container" id="media-box"></div>
+
+            <h3 id="question-text">Cargando pregunta...</h3>
+
+            <div id="answers-container"></div>
+
+            <button id="btn-next" class="btn" disabled>Siguiente</button>
+        </section>
+
+        <section id="screen-end" class="screen">
+            <div class="illustration-box">
+                <svg viewBox="0 0 100 100" width="100%" height="100%">
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#00FF66" stroke-width="2" stroke-dasharray="5 3"/>
+                    <path d="M35 52 L45 62 L65 38" fill="none" stroke="#00FF66" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h2>¡Examen Finalizado!</h2>
+            <p style="font-size: 1rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5;">Tu participación ha sido registrada con éxito en el sistema central.</p>
+            
+            <div id="docente-debug-zone" style="display:none;">
+                <p style="color:var(--error-neon); font-weight:bold; margin-top:10px;">⚠️ MODO DOCENTE ACTIVO (Gasto 0 a Formspree)</p>
+                <div id="debug-results" class="debug-report"></div>
+            </div>
+
+            <div class="actions-end">
+                <button id="btn-exit" class="btn btn-danger">Cerrar Sistema</button>
+                <button id="btn-restart-docente" class="btn btn-secondary" style="display: none;">Reiniciar Test (Docente)</button>
+            </div>
+        </section>
+
+        <section id="screen-cheat" class="screen">
+            <div class="illustration-box">
+                <svg viewBox="0 0 100 100" width="100%" height="100%">
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#FF3366" stroke-width="3"/>
+                    <path d="M30 30 L70 70 M70 30 L30 70" stroke="#FF3366" stroke-width="6" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <h2 class="cheat-title">SISTEMA BLOQUEADO</h2>
+            <p style="font-size: 1.1rem; color: #FFF; margin-bottom: 15px; font-weight: bold;">Acción no responde - Intento de Violación de Seguridad.</p>
+            <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 25px; line-height: 1.5;">
+                Se detectó que saliste del entorno de pantalla completa obligatoria, minimizaste la pestaña o cambiaste de aplicación.<br>
+                <span style="color: var(--error-neon); font-weight: bold;">Tu examen fue cancelado y enviado al servidor con calificación: 0.00.</span>
+            </p>
+            <button id="btn-exit-cheat" class="btn btn-danger">Salir del Entorno</button>
+        </section>
+    </main>
+
+    <footer class="fixed-footer">
+        Prof. Mariela L. Loza - Entorno Técnico 2026
+    </footer>
+
+    <script>
+        const FORMSPREE_URL = "https://formspree.io/f/TU_ID_DE_FORMSPREE"; 
+
+        // Generación de 40 nuevos códigos de alumno (AL01 al AL40)
+        const codigosAlumnos = Array.from({length: 40}, (_, i) => `AL${String(i+1).padStart(2, '0')}`);
+        const codigoDocente = "DOCENTE2026";
+
+        let codigoUsuarioActual = "";
+        let currentQuestionIndex = 0;
+        let respuestasUsuario = [];
+        let examenActivo = false; 
+
+        // Deshabilitar clic derecho / pulsación larga corporativa
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+        // Gráficos Vectoriales
+        const svgGraphics = {
+            inicio: `<svg class="q-svg-graphic" viewBox="0 0 100 50"><rect x="35" y="10" width="30" height="25" rx="3" fill="#9D4EDD" opacity="0.8"/><circle cx="50" cy="22" r="5" fill="#00F5FF"/><path d="M42 30 h16" stroke="#FFF" stroke-width="2"/></svg>`,
+            proyectos: `<svg class="q-svg-graphic" viewBox="0 0 100 50"><path d="M25 15 h15 l5 5 h30 v20 h-50 Z" fill="#00F5FF" opacity="0.6"/><rect x="35" y="23" width="30" height="12" rx="2" fill="#9D4EDD"/></svg>`,
+            plantillas: `<svg class="q-svg-graphic" viewBox="0 0 100 50"><rect x="25" y="10" width="22" height="30" rx="2" fill="#9D4EDD" opacity="0.5"/><rect x="53" y="10" width="22" height="30" rx="2" fill="#00F5FF" opacity="0.5"/><circle cx="36" cy="20" r="4" fill="#FFF"/><circle cx="64" cy="20" r="4" fill="#FFF"/></svg>`,
+            compartir: `<svg class="q-svg-graphic" viewBox="0 0 100 50"><circle cx="35" cy="25" r="6" fill="#00F5FF"/><circle cx="65" cy="15" r="6" fill="#9D4EDD"/><circle cx="65" cy="35" r="6" fill="#9D4EDD"/><line x1="41" y1="22" x2="59" y2="17" stroke="#FFF" stroke-width="2"/><line x1="41" y1="28" x2="59" y2="33" stroke="#FFF" stroke-width="2"/></svg>`,
+            descargas: `<svg class="q-svg-graphic" viewBox="0 0 100 50"><path d="M50 10 v22 M40 22 L50 32 L60 22" fill="none" stroke="#00F5FF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 38 h40" stroke="#9D4EDD" stroke-width="3" stroke-linecap="round"/></svg>`,
+            texto: `<svg class="q-svg-graphic" viewBox="0 0 100 50"><path d="M35 15 h30 M50 15 v20 M42 35 h16" fill="none" stroke="#9D4EDD" stroke-width="4" stroke-linecap="round"/></svg>`,
+            elementos: `<svg class="q-svg-graphic" viewBox="0 0 100 50"><rect x="25" y="15" width="20" height="20" fill="#00F5FF" opacity="0.7"/><circle cx="65" cy="25" r="11" fill="#9D4EDD" opacity="0.7"/></svg>`,
+            imagen: `<svg class="q-svg-graphic" viewBox="0 0 100 50"><rect x="30" y="10" width="40" height="30" rx="3" fill="none" stroke="#FFF" stroke-width="2"/><circle cx="42" cy="20" r="4" fill="#00F5FF"/><path d="M32 38 L48 24 L68 38" fill="none" stroke="#9D4EDD" stroke-width="2" stroke-linejoin="round"/></svg>`,
+            rueda: `<svg class="q-svg-graphic" viewBox="0 0 100 50"><circle cx="50" cy="25" r="16" fill="none" stroke="#9D4EDD" stroke-width="4"/><circle cx="50" cy="9" r="4" fill="#00F5FF"/><circle cx="66" cy="25" r="4" fill="#FF3366"/><circle cx="50" cy="41" r="4" fill="#00FF66"/></svg>`,
+            teoria: `<svg class="q-svg-graphic" viewBox="0 0 100 50"><path d="M20 35 L40 15 L60 35 L80 15" fill="none" stroke="#00F5FF" stroke-width="3"/><circle cx="40" cy="15" r="4" fill="#9D4EDD"/><circle cx="80" cy="15" r="4" fill="#9D4EDD"/></svg>`
+        };
+
+        const preguntas = [
+            { id: 1, type: "choice", label: "PÁGINA 1: Inicio de Canva", graphic: svgGraphics.inicio, q: "Mirando el menú de Inicio, ¿cuál es su función principal dentro del entorno?", options: ["Funciona como el centro de control para organizar y comenzar trabajos", "Es la herramienta principal para editar los textos internos", "Sirve únicamente para borrar archivos descargados"], correct: 0 },
+            { id: 2, type: "combo", label: "PÁGINA 2: Sección Proyectos", graphic: svgGraphics.proyectos, q: "Completa la lógica de filtrado del menú Proyectos:", parts: [{ text: "Si quiero buscar exclusivamente mis diapositivas filtro por:", options: ["Presentación", "Doc", "Videos"], correct: "Presentación" }, { text: "Si quiero ver un trabajo que editó mi compañero voy a:", options: ["Compartidos conmigo", "Mis proyectos", "Papelera"], correct: "Compartidos conmigo" }] },
+            { id: 3, type: "choice", label: "PÁGINA 3: Plantillas", graphic: svgGraphics.plantillas, q: "¿Cuál es la principal ventaja pedagógica y técnica de utilizar una Plantilla?", options: ["Que las plantillas no se pueden modificar bajo ningún concepto", "Ahorrar tiempo porque el diseño base ya está hecho y solo cambiás el contenido", "Que automáticamente se guardan y descargan solas en el disco C:"], correct: 1 },
+            { id: 4, type: "match", label: "PÁGINA 3: Tipos de Plantillas", graphic: svgGraphics.plantillas, q: "Une de forma correcta cada categoría de plantilla con su uso correspondiente:", pairs: [{ concept: "Educación", matches: ["Hojas de trabajo / Certificados", "Logotipos / Tarjetas", "Calendarios / Agendas"], correct: "Hojas de trabajo / Certificados" }, { concept: "Marketing", matches: ["Hojas de trabajo / Certificados", "Logotipos / Tarjetas", "Calendarios / Agendas"], correct: "Logotipos / Tarjetas" }, { concept: "Personal", matches: ["Hojas de trabajo / Certificados", "Logotipos / Tarjetas", "Calendarios / Agendas"], correct: "Calendarios / Agendas" }] },
+            { id: 5, type: "choice", label: "PÁGINA 3: Botón de Creación", graphic: svgGraphics.inicio, q: "Al hacer clic en el botón superior 'Crear un diseño', ¿qué parámetros te permite definir la interfaz?", options: ["Elegir el tipo de diseño o colocar medidas de tamaño personalizadas", "El nombre de los alumnos que van a rendir el examen", "El filtro cromático general de la computadora"], correct: 0 },
+            { id: 6, type: "choice", label: "PÁGINA 4: Menú Compartir", graphic: svgGraphics.compartir, q: "Si necesitás que cualquier usuario pueda visualizar tu diseño mediante un enlace sin iniciar sesión en Canva, ¿qué botón del editor usás?", options: ["Elementos", "Compartir", "Archivo"], correct: 1 },
+            { id: 7, type: "choice", label: "PÁGINA 4: Permisos de Enlace", graphic: svgGraphics.compartir, q: "Dentro de la configuración de 'Compartir el diseño', ¿qué niveles de acceso condicional podés otorgar a otros usuarios?", options: ["Duplicar, Borrar o Bloquear de forma permanente", "Solo ver, Comentar o Editar", "Descargar e Imprimir de forma anónima"], correct: 1 },
+            { id: 8, type: "choice", label: "PÁGINA 4: Panel Descargas", graphic: svgGraphics.descargas, q: "Dónde se encuentra ubicada físicamente la opción 'Descargar' para pasar el archivo al celular o computadora?", options: ["Dentro del propio diseño (en el panel superior del editor)", "Exclusivamente en la pantalla principal de Inicio", "En la papelera de reciclaje general"], correct: 0 },
+            { id: 9, type: "choice", label: "PÁGINA 4: Formato Video", graphic: svgGraphics.descargas, q: "Si tu presentación posee animaciones, stickers en movimiento o fragmentos de video, ¿qué formato de descarga debés elegir?", options: ["PDF estándar", "JPG", "Video MP4"], correct: 2 },
+            { id: 10, type: "combo", label: "PÁGINA 4: Formatos de Archivo", graphic: svgGraphics.descargas, q: "Asocia los formatos de descarga recomendados:", parts: [{ text: "Para imágenes de alta calidad o ilustraciones se sugiere:", options: ["PNG", "GIF", "PDF"], correct: "PNG" }, { text: "Para enviar un documento final listo para imprenta se usa:", options: ["PDF para impresión", "JPG", "SVG"], correct: "PDF para impresión" }] },
+            { id: 11, type: "choice", label: "PÁGINA 5: Edición de Texto", graphic: svgGraphics.texto, q: "Mirando detenidamente la barra de edición de texto numerada de la guía, ¿qué número activa la opción de Mayúscula o minúscula?", options: ["El número 3", "El número 6", "El número 8"], correct: 1 },
+            { id: 12, type: "choice", label: "PÁGINA 5: Capas y Posición", graphic: svgGraphics.texto, q: "En la barra secundaria flotante de un elemento, ¿para qué sirve la herramienta 'Posición' (Opción 3)?", options: ["Para organizar el orden de las capas (traer al frente/atrás) del texto o imagen", "Para cambiar drásticamente la tipografía de la letra", "Para eliminar el bloque del lienzo"], correct: 0 },
+            { id: 13, type: "match", label: "PÁGINA 5: Íconos del Editor", graphic: svgGraphics.texto, q: "Une el número de ícono con la acción correspondiente de la barra flotante:", pairs: [{ concept: "Ícono 4 (Rodillo)", matches: ["Copiar estilo de un elemento", "Bloquear edición de un objeto", "Duplicar la caja actual"], correct: "Copiar estilo de un elemento" }, { concept: "Ícono 6 (Candado)", matches: ["Copiar estilo de un elemento", "Bloquear edición de un objeto", "Duplicar la caja actual"], correct: "Bloquear edición de un objeto" }] },
+            { id: 14, type: "choice", label: "PÁGINA 6: Menú Archivo", graphic: svgGraphics.proyectos, q: "¿Cuál es una función crítica que podemos gestionar exclusivamente desde el menú superior 'Archivo' en el editor?", options: ["Ver el historial de versiones para regresar a cambios anteriores", "Descargar nuevos packs de stickers animados de internet", "Pintar los textos automáticamente sin elegir color"], correct: 0 },
+            { id: 15, type: "choice", label: "PÁGINA 6: Panel de Elementos", graphic: svgGraphics.elementos, q: "¿En qué pestaña del menú lateral izquierdo debés ingresar para añadir formas geométricas, flechas o íconos simplificados?", options: ["Texto", "Elementos", "Proyectos"], correct: 1 },
+            { id: 16, type: "choice", label: "PÁGINA 7: Archivos Externos", graphic: svgGraphics.imagen, q: "Si tenés una fotografía propia guardada en tu dispositivo y querés usarla en tu diapositiva, ¿en qué sección tenés que cargarla?", options: ["Archivos subidos", "Plantillas de la marca", "Texto mágico"], correct: 0 },
+            { id: 17, type: "choice", label: "PÁGINA 8: Efectos de Imagen", graphic: svgGraphics.imagen, q: "Al hacer clic sobre una fotografía dentro del editor, ¿qué herramienta automatizada nos permite aislar el elemento eliminando su entorno?", options: ["Voltear o girar", "Recortar", "Quitafondos / Quitar fondo"], correct: 2 },
+            { id: 18, type: "combo", label: "PÁGINA 8: Comandos de Lienzo", graphic: svgGraphics.elementos, q: "Identifica los comandos rápidos analizados en la página 8:", parts: [{ text: "El ícono de dos hojas con un símbolo más (+) sirve para:", options: ["Duplicar", "Bloquear", "Agregar página"], correct: "Duplicar" }, { text: "El ícono del tacho de basura sirve para:", options: ["Borrar / Eliminar", "Agregar comentario", "Duplicar"], correct: "Borrar / Eliminar" }] },
+            { id: 19, type: "choice", label: "PÁGINA 9: Medidas en Píxeles", graphic: svgGraphics.inicio, q: "Al configurar las Dimensiones Personalizadas para un diseño digital en blanco, ¿cuál es la unidad de medida que viene seleccionada por defecto?", options: ["cm", "mm", "px"], correct: 2 },
+            { id: 20, type: "choice", label: "PÁGINA 10: Rueda de Colores", graphic: svgGraphics.rueda, q: "Si deseás aplicar un color personalizado que no figura en la paleta del documento, ¿qué botón debés oprimir para desplegar el cuadro chromedpatico?", options: ["El botón con el símbolo más (+)", "La papelera flotante", "El selector de fuentes"], correct: 0 },
+            
+            // --- BLOQUE TEÓRICO COMPLEJO ---
+            { id: 21, type: "match", label: "CONCEPTOS AVANZADOS: Plataformas de Exposición", graphic: svgGraphics.teoria, q: "EXAMEN CONCEPTUAL: Vincule cada software de exposición técnica con la estructura lógica que define su funcionamiento en el entorno actual:", pairs: [{ concept: "Canva", matches: ["Lienzo infinito dinámico basado en zoom, focos y conexiones espaciales no lineales.", "Diseño integrado multiplataforma basado en plantillas estandarizadas fijas y nubes de recursos.", "Estructura secuencial local basada en diapositivas individuales rígidas y patrones de diapositiva."], correct: "Diseño integrado multiplataforma basado en plantillas estandarizadas fijas y nubes de recursos." }, { concept: "Prezi", matches: ["Lienzo infinito dinámico basado en zoom, focos y conexiones espaciales no lineales.", "Diseño integrado multiplataforma basado en plantillas estandarizadas fijas y nubes de recursos.", "Estructura secuencial local basada en diapositivas individuales rígidas y patrones de diapositiva."], correct: "Lienzo infinito dinámico basado en zoom, focos y conexiones espaciales no lineales." }, { concept: "PowerPoint", matches: ["Lienzo infinito dinámico basado en zoom, focos y conexiones espaciales no lineales.", "Diseño integrado multiplataforma basado en plantillas estandarizadas fijas y nubes de recursos.", "Estructura secuencial local basada en diapositivas individuales rígidas y patrones de diapositiva."], correct: "Estructura secuencial local basada en diapositivas individuales rígidas y patrones de diapositiva." }] },
+            { id: 22, type: "choice", label: "TEORÍA: Definición de Sistema", graphic: svgGraphics.teoria, q: "Analice rigurosamente los siguientes enunciados. ¿Cuál define de forma exacta el concept de 'Presentación Digital'?", options: ["Es un soporte multimedia estructurado que combina canales visuales y textuales para organizar, sintetizar y transmitir información específica ante un auditorio.", "Es una base de datos relacional de almacenamiento secuencial que procesa vectores visuales exclusivamente para la impresión de documentos de texto.", "Es una interfaz de programación de software diseñada para automatizar la edición de videos de alta definición mediante plantillas preestablecidas.", "Es un documento estático diseñado exclusivamente para su distribución en redes locales sin posibilidad de interacción externa ni dinamismo."], correct: 0 },
+            { id: 23, type: "choice", label: "DISEÑO: Elementos Estructurales", graphic: svgGraphics.teoria, q: "Seleccione la opción que contenga el grupo exacto de componentes esenciales de las presentaciones digitales analizados en clase:", options: ["Diapositivas, Contenido, Tipografía, Esquematización y Fondo", "Diapositivas, Transiciones, Párrafos, Animación y Cromatismo", "Lienzo, Texto mágico, Impresión, Píxeles y Filtros avanzados", "Hojas fijas, Subtítulos, Redacción, Hipervínculos y Vectores"], correct: 0 },
+            { id: 24, type: "multichoice", label: "LENGUAJE: Análisis Audiovisual", graphic: svgGraphics.teoria, q: "EVALUACIÓN DE CRITERIO: Seleccione las TRES funciones del lenguaje audiovisual analizadas que estructuran el impacto de una diapositiva (Debe marcar las 3 para validar):", options: ["Función Conminativa (busca apelar, convencer o guiar la conducta del espectador)", "Función Estética (busca agradar visualmente mediante armonía, colores y formas)", "Función Metalenguaje (usa el propio código visual para explicar o aclarar el entorno)", "Función Emotiva Directa (busca desestabilizar emocionalmente al receptor de forma caótica)", "Función Referencial Pura (menciona datos numéricos únicamente sin diseño alguno)"], correct: [0, 1, 2] },
+            { id: 25, type: "choice", label: "SINTAXIS VISUAL: Peso Cognitivo", graphic: svgGraphics.teoria, q: "Desde la perspectiva pedagógica de la sintaxis visual, ¿qué fenómeno ocurre en el auditorio si sobrecargamos una diapositiva con textos extensos, stickers parpadeantes y fondos de alto contraste simultáneos?", options: ["Saturación o sobrecarga cognitiva, anulando la jerarquía visual y fragmentando la atención del espectador.", "Optimización del espacio expresivo, aumentando el flujo de información asimilada por minuto.", "Armonización estética de vanguardia, logrando que el alumno recuerde la totalidad de los datos secundarios.", "Activación refleja involuntaria, mejorando los tiempos de respuesta del alumno frente a pantallas táctiles."], correct: 0 }
+        ];
+
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = function () { window.history.go(1); };
+
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // DISPARADOR DE CRÍTICA DE SEGURIDAD INTERNA
+        function ejecutarPenalizacionPorTrampa() {
+            if (!examenActivo) return; 
+            examenActivo = false;
+            
+            // Forzar salida de pantalla completa residual si quedó colgada
+            if (document.exitFullscreen) { document.exitFullscreen().catch(()=>{}); }
+            else if (document.webkitExitFullscreen) { document.webkitExitFullscreen().catch(()=>{}); }
+
+            switchScreen("screen-cheat");
+
+            const payloadTrampa = {
+                Código_Alumno: codigoUsuarioActual,
+                Nota_Final: "0.00 / 10",
+                Respuestas_Correctas: "DESCALIFICADO",
+                ESTADO_DEL_EXAMEN: "⚠️ ALERTA ANTIFRAUDE: El usuario abandonó el modo pantalla completa obligatoria, minimizó la pestaña o cambió de aplicación de forma intencional."
+            };
+
+            if (codigoUsuarioActual !== codigoDocente) {
+                fetch(FORMSPREE_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                    body: JSON.stringify(payloadTrampa)
+                }).catch(err => console.error(err));
+            } else {
+                console.log("Simulación Docente Exitosas: Trampa capturada a cero.");
+            }
+        }
+
+        // ESCUCHAS DE TRÁNSITO DE FOCO (Pestañas y Notificaciones)
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "hidden") { ejecutarPenalizacionPorTrampa(); }
+        });
+        window.addEventListener("blur", () => { ejecutarPenalizacionPorTrampa(); });
+
+        // ESCUCHA DE SALIDA DE PANTALLA COMPLETA (Tecla Esc o Gesto Celular)
+        function verificarCambioFullscreen() {
+            const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+            if (examenActivo && !isFullscreen) {
+                ejecutarPenalizacionPorTrampa();
+            }
+        }
+        document.addEventListener('fullscreenchange', verificarCambioFullscreen);
+        document.addEventListener('webkitfullscreenchange', verificarCambioFullscreen);
+        document.addEventListener('mozfullscreenchange', verificarCambioFullscreen);
+        document.addEventListener('MSFullscreenChange', verificarCambioFullscreen);
+
+        // ACTIVADOR DE PANTALLA COMPLETA DE ALTA SEGURIDAD
+        function activarPantallaCompleta() {
+            const docEl = document.documentElement;
+            if (docEl.requestFullscreen) { docEl.requestFullscreen(); }
+            else if (docEl.webkitRequestFullscreen) { docEl.webkitRequestFullscreen(); }
+            else if (docEl.mozRequestFullScreen) { docEl.mozRequestFullScreen(); }
+            else if (docEl.msRequestFullscreen) { docEl.msRequestFullscreen(); }
+        }
+
+        function playNativeClickSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(580, audioCtx.currentTime);
+                gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime + 0.08);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.08);
+            } catch (e) {}
+        }
+
+        document.getElementById("btn-start").addEventListener("click", () => {
+            const inputCode = document.getElementById("student-code").value.trim().toUpperCase();
+            const errorEl = document.getElementById("login-error");
+
+            // Validación insensible a mayúsculas/minúsculas
+            if (inputCode === codigoDocente || codigosAlumnos.includes(inputCode)) {
+                codigoUsuarioActual = inputCode;
+                errorEl.textContent = "";
+                currentQuestionIndex = 0;
+                respuestasUsuario = [];
+                
+                playNativeClickSound();
+                
+                try {
+                    activarPantallaCompleta();
+                } catch(e) {
+                    console.log("Error al inicializar Fullscreen: ", e);
+                }
+
+                setTimeout(() => {
+                    examenActivo = true;
+                    switchScreen("screen-game");
+                    loadQuestion();
+                }, 300);
+
+            } else {
+                errorEl.textContent = "Código de terminal incorrecto.";
+            }
+        });
+
+        function loadQuestion() {
+            const qData = preguntas[currentQuestionIndex];
+            
+            document.getElementById("question-number").textContent = `MÓDULO ${currentQuestionIndex + 1} / 25`;
+            document.getElementById("question-text").textContent = qData.q;
+            
+            const mediaBox = document.getElementById("media-box");
+            mediaBox.innerHTML = qData.graphic || '';
+            
+            const placeholder = document.createElement("div");
+            placeholder.className = "img-placeholder";
+            placeholder.innerHTML = `Guía requerida: Analizar la sección de <u>${qData.label}</u> en el apunte técnico.`;
+            mediaBox.appendChild(placeholder);
+            
+            const container = document.getElementById("answers-container");
+            container.innerHTML = "";
+            
+            const nextBtn = document.getElementById("btn-next");
+            nextBtn.disabled = true;
+
+            if (qData.type === "choice") {
+                qData.options.forEach((opt, idx) => {
+                    const btn = document.createElement("button");
+                    btn.className = "option-btn";
+                    btn.textContent = opt;
+                    btn.addEventListener("click", () => {
+                        playNativeClickSound();
+                        document.querySelectorAll(".option-btn").forEach(b => b.classList.remove("selected"));
+                        btn.classList.add("selected");
+                        btn.dataset.index = idx;
+                        nextBtn.disabled = false;
+                    });
+                    container.appendChild(btn);
+                });
+            } else if (qData.type === "multichoice") {
+                const infoText = document.createElement("p");
+                infoText.className = "matching-instruction";
+                infoText.style.color = "var(--secondary-neon)";
+                infoText.textContent = "⚠️ Atención: Debe seleccionar exactamente tres (3) casillas para poder continuar.";
+                container.appendChild(infoText);
+
+                qData.options.forEach((opt, idx) => {
+                    const btn = document.createElement("button");
+                    btn.className = "option-btn";
+                    btn.textContent = opt;
+                    btn.addEventListener("click", () => {
+                        playNativeClickSound();
+                        btn.classList.toggle("selected");
+                        const selecteds = document.querySelectorAll(".option-btn.selected");
+                        nextBtn.disabled = (selecteds.length !== 3);
+                    });
+                    container.appendChild(btn);
+                });
+            } else if (qData.type === "combo") {
+                qData.parts.forEach((part, pIdx) => {
+                    const row = document.createElement("div");
+                    row.className = "combo-container";
+                    row.innerHTML = `<label>${part.text}</label>`;
+                    
+                    const select = document.createElement("select");
+                    select.className = "question-select";
+                    select.innerHTML = `<option value="" disabled selected>-- Desplegar opciones --</option>`;
+                    part.options.forEach(o => {
+                        select.innerHTML += `<option value="${o}">${o}</option>`;
+                    });
+                    
+                    select.addEventListener("change", () => {
+                        playNativeClickSound();
+                        const allSelects = document.querySelectorAll(".question-select");
+                        let complete = true;
+                        allSelects.forEach(s => { if(s.value === "") complete = false; });
+                        nextBtn.disabled = !complete;
+                    });
+                    row.appendChild(select);
+                    container.appendChild(row);
+                });
+            } else if (qData.type === "match") {
+                const info = document.createElement("p");
+                info.className = "matching-instruction";
+                info.textContent = "Vincule cada concepto con la definición estructural correspondiente:";
+                container.appendChild(info);
+
+                qData.pairs.forEach((pair, pairIdx) => {
+                    const row = document.createElement("div");
+                    row.className = "matching-row";
+                    
+                    const conceptDiv = document.createElement("div");
+                    conceptDiv.className = "matching-concept";
+                    conceptDiv.textContent = pair.concept;
+                    
+                    const select = document.createElement("select");
+                    select.className = "matching-select";
+                    select.innerHTML = `<option value="" disabled selected>-- Elegir par --</option>`;
+                    
+                    const sortedOptions = [...pair.matches].sort(() => Math.random() - 0.5);
+                    sortedOptions.forEach(opt => {
+                        select.innerHTML += `<option value="${opt}">${opt}</option>`;
+                    });
+                    
+                    select.addEventListener("change", () => {
+                        playNativeClickSound();
+                        const allSelects = document.querySelectorAll(".matching-select");
+                        let complete = true;
+                        allSelects.forEach(s => { if(s.value === "") complete = false; });
+                        nextBtn.disabled = !complete;
+                    });
+                    
+                    row.appendChild(conceptDiv);
+                    row.appendChild(select);
+                    container.appendChild(row);
+                });
+            }
+        }
+
+        document.getElementById("btn-next").addEventListener("click", () => {
+            playNativeClickSound();
+            const qData = preguntas[currentQuestionIndex];
+            let respuestaSalva = "";
+            let esCorrecta = false;
+
+            if (qData.type === "choice") {
+                const selectedBtn = document.querySelector(".option-btn.selected");
+                const idx = parseInt(selectedBtn.dataset.index);
+                respuestaSalva = qData.options[idx];
+                esCorrecta = (idx === qData.correct);
+            } else if (qData.type === "multichoice") {
+                const selectedBtns = document.querySelectorAll(".option-btn.selected");
+                let indices = [];
+                let textos = [];
+                selectedBtns.forEach(btn => {
+                    const text = btn.textContent;
+                    textos.push(text);
+                    indices.push(qData.options.indexOf(text));
+                });
+                respuestaSalva = textos.join(" // ");
+                const todoBien = indices.length === qData.correct.length && indices.every(val => qData.correct.includes(val));
+                esCorrecta = todoBien;
+            } else if (qData.type === "combo") {
+                const selects = document.querySelectorAll(".question-select");
+                let respuestasCombo = [];
+                let todoCorrecto = true;
+                selects.forEach((s, idx) => {
+                    respuestasCombo.push(s.value);
+                    if(s.value !== qData.parts[idx].correct) todoCorrecto = false;
+                });
+                respuestaSalva = respuestasCombo.join(" | ");
+                esCorrecta = todoCorrecto;
+            } else if (qData.type === "match") {
+                const selects = document.querySelectorAll(".matching-select");
+                let respuestasMatch = [];
+                let todoCorrecto = true;
+                selects.forEach((s, idx) => {
+                    respuestasMatch.push(`${qData.pairs[idx].concept} -> ${s.value}`);
+                    if(s.value !== qData.pairs[idx].correct) todoCorrecto = false;
+                });
+                respuestaSalva = respuestasMatch.join(" // ");
+                esCorrecta = todoCorrecto;
+            }
+
+            respuestasUsuario.push({
+                preguntaId: qData.id,
+                respuesta: respuestaSalva,
+                valida: esCorrecta
+            });
+
+            avanzarSiguiente();
+        });
+
+        function avanzarSiguiente() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < preguntas.length) {
+                loadQuestion();
+            } else {
+                examenActivo = false;
+                if (document.exitFullscreen) { document.exitFullscreen().catch(()=>{}); }
+                finalizarExamen();
+            }
+        }
+
+        function finalizarExamen() {
+            switchScreen("screen-end");
+            
+            const correctas = respuestasUsuario.filter(r => r.valida).length;
+            const notaFinal = (correctas / preguntas.length) * 10;
+
+            const payload = {
+                Código_Alumno: codigoUsuarioActual,
+                Nota_Final: `${notaFinal.toFixed(2)} / 10`,
+                Respuestas_Correctas: `${correctas} de 25`,
+            };
+
+            respuestasUsuario.forEach((r, i) => {
+                payload[`Pregunta_${i+1}`] = `${r.respuesta} (${r.valida ? 'BIEN' : 'MAL'})`;
+            });
+
+            if (codigoUsuarioActual === codigoDocente) {
+                document.getElementById("btn-restart-docente").style.display = "inline-block";
+                const debugZone = document.getElementById("docente-debug-zone");
+                const debugResults = document.getElementById("debug-results");
+                
+                debugZone.style.display = "block";
+                let htmlReport = `<strong style="color:var(--secondary-neon);">Reporte de Simulación Docente (Gasto 0):</strong><br>`;
+                htmlReport += `Nota final calculada: <strong>${payload.Nota_Final}</strong><br>`;
+                htmlReport += `Aciertos: <strong>${payload.Respuestas_Correctas}</strong><br><br><strong>Matriz de Respuestas:</strong><br>`;
+                
+                respuestasUsuario.forEach((r, i) => {
+                    htmlReport += `Ítem ${i+1}: ${r.valida ? '<span style="color:var(--success-neon)">✔ ÉXITO</span>' : '<span style="color:var(--error-neon)">❌ ERROR</span>'} - <small>${r.respuesta}</small><br>`;
+                });
+                debugResults.innerHTML = htmlReport;
+            } else {
+                fetch(FORMSPREE_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                    body: JSON.stringify(payload)
+                }).catch(err => console.error("Transmisión errónea: ", err));
+            }
+        }
+
+        function salirForzado() {
+            window.close();
+            window.location.href = "about:blank";
+        }
+
+        document.getElementById("btn-exit").addEventListener("click", salirForzado);
+        document.getElementById("btn-exit-cheat").addEventListener("click", salirForzado);
+
+        document.getElementById("btn-restart-docente").addEventListener("click", () => {
+            document.getElementById("docente-debug-zone").style.display = "none";
+            document.getElementById("btn-restart-docente").style.display = "none";
+            document.getElementById("student-code").value = "";
+            switchScreen("screen-login");
+        });
+    </script>
+</body>
+</html>
